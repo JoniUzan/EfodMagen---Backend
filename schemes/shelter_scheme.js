@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 
 const shelterSchema = new mongoose.Schema({
 
+
     address: {
         type: String,
         required: true
@@ -35,10 +36,10 @@ const shelterSchema = new mongoose.Schema({
     },
 
 
-    //   isPrivate: {type:Boolean, required:true},
-    //   contact: {type:String, required:true},
-
+  isPrivate: { type: Boolean, required: true },
+  contact_name_and_phone_number: { type: String, required: true },
 });
+
 
 const Shelter = mongoose.model("Shelter", shelterSchema);
 module.exports = Shelter;
