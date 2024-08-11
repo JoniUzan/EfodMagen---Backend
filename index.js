@@ -22,7 +22,7 @@ async function main() {
   const userRoutes = require("./routers/users_router");
 
   app.use("/api/auth", authRoutes);
-  app.use("/api/shelters", verifyToken, sheltersRoutes);
+  app.use("/api/shelters", sheltersRoutes);
   app.use("/api/loggedInUser", verifyToken, userRoutes);
 
   //   app.get("*", (req, res) => {

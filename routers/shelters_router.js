@@ -30,8 +30,8 @@ const { verifyToken } = require("../middleware/authentication_middleware");
 
 router.get("/", findShelter);
 //router.get("/details/:id", verifyToken, getShelterById);
-router.post("/", createShelter);
-router.delete("/:id", deleteShelterkById);
-router.put("/:id", updateShelter);
+router.post("/", verifyToken, createShelter);
+router.delete("/:id", verifyToken, deleteShelterkById);
+router.put("/:id", verifyToken, updateShelter);
 
 module.exports = router;
