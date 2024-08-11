@@ -1,8 +1,6 @@
 const Shelter = require("../schemes/shelter_scheme");
-const shelter = require("../schemes/shelter_scheme");
 const User = require("../schemes/user_scheme");
 const mongoose = require("mongoose");
-
 
 
 async function findShelter(req, res) {
@@ -27,25 +25,25 @@ async function findShelter(req, res) {
   }
 }
 
-async function getTaskById(req, res) {
-  const { id } = req.params;
-  try {
-    const task = await Shelter.findById(id);
-    res.status(200).json(task);
-  } catch (err) {
-    if (err.name === "CastError") {
-      console.log(
-        `tasks_controller, getTaskById. Task not found with id: ${id}`
-      );
-      return res.status(404).json({ message: "Task not found" });
-    }
-    console.log(
-      `tasks_controller, getTaskById. Error while getting Task with id: ${id}`,
-      err.name
-    );
-    res.status(500).json({ message: err.message });
-  }
-}
+// async function getTaskById(req, res) {
+//   const { id } = req.params;
+//   try {
+//     const task = await Shelter.findById(id);
+//     res.status(200).json(task);
+//   } catch (err) {
+//     if (err.name === "CastError") {
+//       console.log(
+//         `tasks_controller, getTaskById. Task not found with id: ${id}`
+//       );
+//       return res.status(404).json({ message: "Task not found" });
+//     }
+//     console.log(
+//       `tasks_controller, getTaskById. Error while getting Task with id: ${id}`,
+//       err.name
+//     );
+//     res.status(500).json({ message: err.message });
+//   }
+// }
 
 async function deleteShelterkById(req, res) {
   const { id } = req.params;
@@ -78,7 +76,7 @@ async function deleteShelterkById(req, res) {
 // Update Product
 async function updateShelter(req, res) {
   const { id } = req.params;
-  const task = req.body;
+  const shelter = req.body;
   console.log(shelter);
   console.log("req user id", req.userId);
   try {
@@ -87,7 +85,7 @@ async function updateShelter(req, res) {
         _id: id,
         user: req.userId,
       },
-      task,
+      shelter,
       { new: true, runValidators: true }
     );
 

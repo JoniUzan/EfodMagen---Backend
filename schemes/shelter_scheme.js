@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const shelterSchema = new mongoose.Schema({
+
   address: {
     type: String,
     required: true,
@@ -41,6 +42,7 @@ const shelterSchema = new mongoose.Schema({
 
 // Create a 2dsphere index on the location field
 shelterSchema.index({ location: '2dsphere' });
+
 
 const Shelter = mongoose.model("Shelter", shelterSchema);
 module.exports = Shelter;
