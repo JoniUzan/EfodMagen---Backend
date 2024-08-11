@@ -1,18 +1,6 @@
 const mongoose = require("mongoose");
 
-//const todoSchema = new mongoose.Schema({
-//  title: { type: String, required: true },
-//isComplete: { type: Boolean, default: false },
-//});
-
 const shelterSchema = new mongoose.Schema({
-  //title: { type: String, required: true },
-  //description: { type: String, required: true },
-  //body: { type: String, required: true },
-  //todoList: [todoSchema],
-  //isPinned: { type: Boolean, default: false },
-  //user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-
   address: {
     type: String,
     required: true,
@@ -21,15 +9,17 @@ const shelterSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  coordinates: {
-    latitude: {
-      type: Number,
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
       required: true,
+      default: 'Point'
     },
-    longitude: {
-      type: Number,
-      required: true,
-    },
+    coordinates: {
+      type: [Number], // Array of numbers [longitude, latitude]
+      required: true
+    }
   },
   notes: {
     type: String,
@@ -39,10 +29,18 @@ const shelterSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
-
-  isPrivate: { type: Boolean, required: true },
-  contact_name_and_phone_number: { type: String, required: true },
+  isPrivate: {
+    type: Boolean,
+    required: true,
+  },
+  contact_name_and_phone_number: {
+    type: String,
+    required: true,
+  },
 });
+
+// Create a 2dsphere index on the location field
+shelterSchema.index({ location: '2dsphere' });
 
 const Shelter = mongoose.model("Shelter", shelterSchema);
 module.exports = Shelter;
