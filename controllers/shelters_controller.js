@@ -2,6 +2,7 @@ const Shelter = require("../schemes/shelter_scheme");
 const User = require("../schemes/user_scheme");
 const mongoose = require("mongoose");
 
+
 async function findShelter(req, res) {
   console.log("findShelter called"); // Add this line
 
@@ -146,9 +147,44 @@ async function createShelter(req, res) {
   }
 }
 
+
+
+async function findClosestShelters(req, res) {
+  const { lat, lng } = req.query;
+  console.log(lat,lng);
+  
+
+  if (!lat || !lng) {
+    return res.status(400).json({ message: "Latitude and Longitude are required" });
+  }
+
+  try {
+    const shelters = await Shelter.find({
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [parseFloat(lng), parseFloat(lat)] // [longitude, latitude]
+          }
+        }
+      }
+    })
+    .limit(5);
+
+    res.status(200).json(shelters);
+  } catch (err) {
+    console.error(`Error in findClosestShelters: ${err.message}`);
+    res.status(500).json({ message: "Server error while fetching closest shelters" });
+  }
+}
+
+
+
+
 module.exports = {
   findShelter,
   deleteShelterkById,
   updateShelter,
   createShelter,
+  findClosestShelters
 };
