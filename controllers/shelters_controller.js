@@ -2,7 +2,6 @@ const Shelter = require("../schemes/shelter_scheme");
 const User = require("../schemes/user_scheme");
 const mongoose = require("mongoose");
 
-
 async function findShelter(req, res) {
   console.log("findShelter called"); // Add this line
 
@@ -147,15 +146,14 @@ async function createShelter(req, res) {
   }
 }
 
-
-
 async function findClosestShelters(req, res) {
   const { lat, lng } = req.query;
-  console.log(lat,lng);
-  
+  console.log(lat, lng);
 
   if (!lat || !lng) {
-    return res.status(400).json({ message: "Latitude and Longitude are required" });
+    return res
+      .status(400)
+      .json({ message: "Latitude and Longitude are required" });
   }
 
   try {
@@ -164,27 +162,96 @@ async function findClosestShelters(req, res) {
         $near: {
           $geometry: {
             type: "Point",
-            coordinates: [parseFloat(lng), parseFloat(lat)] // [longitude, latitude]
-          }
-        }
-      }
-    })
-    .limit(5);
+            coordinates: [parseFloat(lng), parseFloat(lat)], // [longitude, latitude]
+          },
+        },
+      },
+    }).limit(5);
 
     res.status(200).json(shelters);
   } catch (err) {
     console.error(`Error in findClosestShelters: ${err.message}`);
-    res.status(500).json({ message: "Server error while fetching closest shelters" });
+    res
+      .status(500)
+      .json({ message: "Server error while fetching closest shelters" });
   }
 }
 
+async function getUserShelters(req, res) {
+  const userId = req.userId; // Extracted from the token by verifyToken middleware
 
+  try {
+    // Find the user by ID and populate the saved_shelters field
+    const user = await User.findById(userId).populate("saved_shelters");
 
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Return the populated shelters
+    return res.status(200).json(user.saved_shelters);
+  } catch (error) {
+    console.error("getUserShelters: Error fetching user's shelters", error);
+    return res.status(500).json({ message: "Server error", error });
+  }
+}
+
+async function saveShelterToUser(req, res) {
+  const { shelterId } = req.body; // Extract shelterId from the request body
+  const userId = req.userId; // Extract userId from the verified token (assuming verifyToken middleware is used)
+
+  try {
+    // Find the shelter by ID to ensure it exists
+    const shelter = await Shelter.findById(shelterId);
+    if (!shelter) {
+      return res.status(404).json({ message: "Shelter not found" });
+    }
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the shelter is already in the user's saved shelters
+    const shelterIndex = user.saved_shelters.indexOf(shelterId);
+
+    if (shelterIndex !== -1) {
+      // If shelterId exists in the array, remove it
+      user.saved_shelters.splice(shelterIndex, 1);
+      await user.save();
+      return res
+        .status(200)
+        .json({
+          message: "Shelter removed successfully",
+          saved_shelters: user.saved_shelters,
+        });
+    } else {
+      // If shelterId does not exist in the array, add it
+      user.saved_shelters.push(shelterId);
+      await user.save();
+      return res
+        .status(200)
+        .json({
+          message: "Shelter saved successfully",
+          saved_shelters: user.saved_shelters,
+        });
+    }
+  } catch (error) {
+    console.error(
+      "saveShelterToUser: Error saving or removing shelter to/from user",
+      error
+    );
+    return res.status(500).json({ message: "Server error", error });
+  }
+}
 
 module.exports = {
   findShelter,
   deleteShelterkById,
   updateShelter,
   createShelter,
-  findClosestShelters
+  findClosestShelters,
+  getUserShelters,
+  saveShelterToUser,
 };
